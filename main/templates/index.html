@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+
+<p><a href="#" id="loginUser1">Залогиниться первым пользователем</a></p>
+<p><a href="#" id="loginUser2">Залогиниться вторым пользователем</a></p>
+<p><a href="#" id="loginUser3">Залогиниться третьим пользователем</a></p>
+
+</body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function(){
+
+        const firstUserLogin = document.getElementById("loginUser1");
+        const secondUserLogin = document.getElementById("loginUser2");
+        const thirdUserLogin = document.getElementById("loginUser3");
+
+
+        firstUserLogin.addEventListener('click', function(){
+
+            postData('http://127.0.0.1/login', {'login': 'user1', 'password': 123});
+        });
+
+        secondUserLogin.addEventListener('click', function(){
+
+            postData('http://127.0.0.1/login', {'login': 'user2', 'password': 123});
+        });
+
+        thirdUserLogin.addEventListener('click', function(){
+
+            postData('http://127.0.0.1/login', {'login': 'user3', 'password': 123});
+        });
+
+        async function postData(url, data={}){
+
+            const resp = await fetch(url, {
+
+                method: 'POST',
+                mode: 'same-origin',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            return await response.json();
+        };
+    });
+</script>
+
+</html>

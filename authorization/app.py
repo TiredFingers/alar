@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 import urllib.request
 import urllib.parse
-from appconfig.config import Config
+from ..appconfig.config import Config
 import json
 import jwt
 

@@ -1,7 +1,7 @@
-from flask import Flask, redirect, url_for, session, jsonify, request
+from flask import Flask, redirect, url_for, session, jsonify, request, render_template
 import urllib.request
 import urllib.parse
-from appconfig.config import Config
+from ..appconfig.config import Config
 import json
 
 
@@ -12,29 +12,34 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'
 
 @app.route("/")
 def index():
-    return "Hello baby"
+    return render_template("index.html")
 
 
 @app.route("/login")
 def login():
 
-    login = 'test@test.com'
-    password = '123'
-    data = json.dumps({'login': login, 'password': password}).encode("utf-8")
+    data = request.get_json()
 
-    r = urllib.request.Request(url=app.config['AUTH_URL'] + "/authorization", data=data, headers={'Content-Type': 'application/json'})
+    if data:
 
-    with urllib.request.urlopen(r) as resp:
-        page = resp.read()
-        encoding = resp.info().get_content_charset('utf-8')
-        answer = json.loads(page.decode(encoding))
+        login = data.get('login', None)
+        password = data.get('password', None)
 
-        if 'error' in answer:
-            return jsonify({'error': answer['error']})
+        req_data = json.dumps({'login': login, 'password': password}).encode("utf-8")
 
-        if 'token' in answer:
-            session['token'] = answer['token']
-            session['userid'] = answer['userid']
+        r = urllib.request.Request(url=app.config['AUTH_URL'] + "/authorization", data=req_data, headers={'Content-Type': 'application/json'})
+
+        with urllib.request.urlopen(r) as resp:
+            page = resp.read()
+            encoding = resp.info().get_content_charset('utf-8')
+            answer = json.loads(page.decode(encoding))
+
+            if 'error' in answer:
+                return jsonify({'error': answer['error']})
+
+            if 'token' in answer:
+                session['token'] = answer['token']
+                session['userid'] = answer['userid']
 
     return redirect(url_for('index'))
 

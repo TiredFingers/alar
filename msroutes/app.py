@@ -1,12 +1,18 @@
 from flask import Flask, request, jsonify
 import jwt
-from appconfig.config import Config
+from ..appconfig.config import Config
 from .db import get_routes, get_summary
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 
 
 app = Flask(__name__)
 app.config.from_object(Config)
 private_key = 'secret'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///routes.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 @app.route("/routes", methods=["POST"])

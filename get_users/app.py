@@ -1,9 +1,16 @@
 from flask import Flask, request, jsonify
-from .db import get_user, get_summary
 import jwt
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+from .models import User, Acl
+
 
 app = Flask(__name__)
 private_key = 'secret'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
+db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 
 @app.route('/check_user', methods=['GET', 'POST'])
@@ -19,10 +26,14 @@ def check_user():
         if token:
             payload = jwt.decode(token, private_key, algorithms=['HS256'])
 
-            userid = get_user(login, password, payload['userid'])
+            res = Acl.query.filter_by(user_id=payload.get('userid', None)).first()
 
-            if userid:
-                return jsonify({'user_id': userid})
+            if res.access_granted:
+
+                user = User.query.filter_by(login=login, password=password)
+
+                if user:
+                    return jsonify({'user_id': user.id})
 
             return jsonify({'error': 'No such user'})
 
@@ -31,7 +42,7 @@ def check_user():
 
 @app.route('/summary', methods=['POST'])
 def get_summary_view():
-
+    """
     data = request.get_json()
 
     if data:
@@ -44,3 +55,5 @@ def get_summary_view():
             return jsonify(get_summary(payload.get('userid', -1)))
 
     return jsonify({})
+    """
+    return {'ok'}
