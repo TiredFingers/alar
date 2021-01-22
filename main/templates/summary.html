@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+
+{% if summary %}
+    {% for s in summary %}
+        <p>{{ s }}</p>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

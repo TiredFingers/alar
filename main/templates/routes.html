@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if routes %}
+    {% for route in routes %}
+        <p>{{ route }}</p>
+        <br />
+    {% endfor %}
+{% else %}
+    <p>Нет маршрутов</p>
+{% endif %}
+{% endblock %}

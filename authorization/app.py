@@ -7,7 +7,7 @@ import jwt
 
 app = Flask(__name__)
 app.config.from_object(Config)
-mstoken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyaWQiOiJzeXN0ZW0ifQ.bvLIApwfv4c9cjVfQ468M52M58LuxtPM1h_OzVNZdi8"
+mstoken = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyaWQiOiIxIn0.QVbaPorc1qkWxbc09taz30peQzverFvrWGDPLTQ_7zk"
 
 
 @app.route('/authorization', methods=['GET', 'POST'])

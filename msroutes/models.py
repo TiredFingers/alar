@@ -14,3 +14,4 @@ class Route(db.Model):
     user_id = db.Column(db.Integer)
     points = db.Column(db.Text)  # json points
     name = db.Column(db.Text)
+    length = db.Column(db.Integer)

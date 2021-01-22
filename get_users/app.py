@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify
 import jwt
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from .models import User, Acl
 
 
 app = Flask(__name__)
@@ -11,6 +10,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
+from .models import User, Acl
 
 
 @app.route('/check_user', methods=['GET', 'POST'])
@@ -28,9 +29,9 @@ def check_user():
 
             res = Acl.query.filter_by(user_id=payload.get('userid', None)).first()
 
-            if res.access_granted:
+            if res:
 
-                user = User.query.filter_by(login=login, password=password)
+                user = User.query.filter_by(login=login, password=password).first()
 
                 if user:
                     return jsonify({'user_id': user.id})
@@ -41,19 +42,56 @@ def check_user():
 
 
 @app.route('/summary', methods=['POST'])
-def get_summary_view():
-    """
+def get_users():
     data = request.get_json()
 
     if data:
-
         token = data.get('token', None)
 
         if token:
             payload = jwt.decode(token, private_key, algorithms=['HS256'])
 
-            return jsonify(get_summary(payload.get('userid', -1)))
+            res = Acl.query.filter_by(user_id=payload.get('userid', None)).first()
 
-    return jsonify({})
-    """
-    return {'ok'}
+            if res:
+                if res.access_granted:
+
+                    users = list()
+
+                    for user in User.query.all():
+                        users.append({'id': str(user.id), 'login': user.login})
+
+                    return jsonify(users)
+
+    return jsonify({'error': 'not found'})
+
+
+@app.route('/create_schema')
+def create_schema():
+    db.create_all()
+    return "Created"
+
+
+@app.route("/fill_db")
+def fill_db():
+
+    db.session.add(Acl(user_id=1, access_granted=True))
+    db.session.add(Acl(user_id=2, access_granted=True))
+    db.session.add(Acl(user_id=3, access_granted=True))
+    db.session.add(Acl(user_id=4, access_granted=False))
+
+    db.session.add(User(login='user1', password='123'))
+    db.session.add(User(login='user2', password='123'))
+    db.session.add(User(login='user3', password='123'))
+
+    db.session.commit()
+
+    return "Filled"
+
+
+@app.route("/delete_all")
+def delete_data():
+
+    Acl.query.delete()
+    User.query.delete()
+    return "Deleted"
